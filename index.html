@@ -91,9 +91,9 @@ body {
 .avatar-ring::after { content:''; position:absolute; inset:3px; border-radius:50%; background:var(--bg) }
 @keyframes spin { to{transform:rotate(360deg)} }
 .avatar-ring img {
-  position:relative; z-index:1;
+  position:absolute; z-index:1;
+  top:50%; left:50%; transform:translate(-50%,-50%);
   width:74px; height:74px; border-radius:50%; object-fit:cover; object-position:center top;
-  display:block; margin:3px auto 0;
 }
 .profile-name-row { grid-column:2; grid-row:1; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap }
 .p-name  { font-family:'Plus Jakarta Sans',sans-serif; font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.1 }
