@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Link da Bio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #111416;
+  --bg2:      #17191d;
+  --glass:    rgba(255,255,255,0.044);
+  --glass2:   rgba(255,255,255,0.07);
+  --border:   rgba(255,255,255,0.09);
+  --shine:    rgba(255,255,255,0.15);
+  --txt:      #f0f0f3;
+  --muted:    rgba(240,240,243,0.42);
+  --muted2:   rgba(240,240,243,0.22);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+
+body {
+  font-family:'Nunito', sans-serif;
+  color: var(--txt);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 70% 45% at 50% -2%,  rgba(255,255,255,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 35% at 92% 88%,  rgba(255,255,255,.04) 0%, transparent 55%),
+    radial-gradient(ellipse 35% 30% at 4%  65%,  rgba(255,255,255,.025) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)' opacity='.036'/%3E%3C/svg%3E");
+  min-height:100vh;
+  padding-bottom: 72px;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position:sticky; top:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 20px;
+  background:rgba(17,20,22,.82);
+  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+.topbar-left  { display:flex; align-items:center; gap:10px }
+.pulse {
+  width:8px; height:8px; border-radius:50%; background:#fff; position:relative;
+  box-shadow:0 0 6px rgba(255,255,255,.8);
+}
+.pulse::after {
+  content:''; position:absolute; inset:-3px; border-radius:50%;
+  background:rgba(255,255,255,.25); animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:.6} 50%{transform:scale(1.6);opacity:0} }
+.topbar-name  { font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:700; letter-spacing:.01em; color:var(--muted) }
+.topbar-right { display:flex; gap:8px }
+.topbar-right a {
+  height:30px; padding:0 12px; border-radius:999px;
+  display:flex; align-items:center; gap:5px;
+  background:var(--glass); border:1px solid var(--border);
+  color:var(--muted); text-decoration:none; font-size:11.5px; font-weight:600; letter-spacing:.04em;
+  transition:border-color .2s, color .2s, background .2s;
+}
+.topbar-right a:hover { border-color:rgba(255,255,255,.3); color:#fff; background:rgba(255,255,255,.08) }
+
+/* ── PAGE ── */
+.page { max-width:480px; margin:0 auto; padding:0 16px }
+
+/* ─────────────────────────────────────────
+   PROFILE — layout assimétrico, nome grande
+   ───────────────────────────────────────── */
+.profile {
+  padding:40px 0 32px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  grid-template-rows:auto auto auto;
+  column-gap:18px;
+  row-gap:0;
+  align-items:start;
+}
+.avatar-col { grid-column:1; grid-row:1/4; padding-top:4px }
+.avatar-ring {
+  position:relative; width:80px; height:80px;
+}
+.avatar-ring::before {
+  content:''; position:absolute; inset:-2px; border-radius:50%;
+  background:conic-gradient(from 130deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,.08) 45%,rgba(255,255,255,.6) 75%,rgba(255,255,255,.9) 100%);
+  animation:spin 7s linear infinite;
+}
+.avatar-ring::after { content:''; position:absolute; inset:2px; border-radius:50%; background:var(--bg) }
+@keyframes spin { to{transform:rotate(360deg)} }
+.avatar-ring img {
+  position:relative; z-index:1;
+  width:74px; height:74px; border-radius:50%; object-fit:cover;
+  display:block; margin:3px auto 0;
+}
+.profile-name-row { grid-column:2; grid-row:1; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap }
+.p-name  { font-family:'Plus Jakarta Sans',sans-serif; font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.1 }
+.p-role  { font-size:11.5px; font-weight:600; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; white-space:nowrap }
+.p-bio   { grid-column:2; grid-row:2; font-size:13px; line-height:1.65; color:var(--muted); margin-top:8px }
+.cta-row { grid-column:2; grid-row:3; margin-top:14px }
+.cta {
+  display:inline-flex; align-items:center; gap:7px;
+  padding:9px 20px;
+  background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.24);
+  border-radius:999px;
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:700; letter-spacing:.04em;
+  color:#fff; text-decoration:none;
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.05) inset, 0 3px 14px rgba(0,0,0,.3);
+  transition:background .22s, border-color .22s, transform .22s;
+}
+.cta:hover { background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.42); transform:translateY(-2px) }
+.cta-arrow { font-size:14px; transition:transform .2s }
+.cta:hover .cta-arrow { transform:translateX(3px) }
+
+/* ─────────────────────────────────────────
+   SEÇÃO CURSO — card hero grande com badge
+   ───────────────────────────────────────── */
+.course-section { margin-bottom:14px }
+
+.course-hero {
+  position:relative; overflow:hidden;
+  border-radius:24px;
+  border:1px solid var(--border);
+  text-decoration:none; color:inherit;
+  display:block; height:200px;
+  transition:transform .28s, box-shadow .28s, border-color .28s;
+}
+.course-hero::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--shine),transparent); z-index:3;
+}
+.course-hero:hover { transform:translateY(-4px) scale(1.006); border-color:rgba(255,255,255,.2); box-shadow:0 20px 52px rgba(0,0,0,.5) }
+.course-hero .bg  { position:absolute; inset:0; background-size:cover; background-position:center; opacity:.45; transition:opacity .3s; z-index:0 }
+.course-hero:hover .bg { opacity:.62 }
+.course-hero .ov  { position:absolute; inset:0; background:linear-gradient(135deg,rgba(14,16,20,.96) 30%,rgba(14,16,20,.5) 100%); z-index:1 }
+.course-hero .body {
+  position:relative; z-index:2;
+  height:100%; display:flex; flex-direction:column; justify-content:space-between;
+  padding:22px;
+}
+.course-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 12px;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18);
+  border-radius:999px; font-size:10.5px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; backdrop-filter:blur(8px); width:fit-content;
+  color:rgba(255,255,255,.8);
+}
+.course-badge .dot { width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 5px #fff }
+.course-bottom { display:flex; align-items:flex-end; justify-content:space-between; gap:12px }
+.course-title {
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:20px; font-weight:800;
+  line-height:1.2; max-width:260px;
+}
+.course-title em { font-style:normal; color:#fff; text-shadow:0 0 20px rgba(255,255,255,.5) }
+.course-cta {
+  flex-shrink:0;
+  display:inline-flex; align-items:center; gap:5px;
+  padding:9px 16px;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22);
+  border-radius:14px; font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  backdrop-filter:blur(8px); transition:background .2s, border-color .2s;
+  white-space:nowrap;
+}
+.course-hero:hover .course-cta { background:rgba(255,255,255,.2); border-color:rgba(255,255,255,.38) }
+
+/* ─────────────────────────────────────────
+   PORTFÓLIO — card médio com visual diferente
+   ───────────────────────────────────────── */
+.portfolio-card {
+  position:relative; overflow:hidden;
+  border-radius:20px; border:1px solid var(--border);
+  background:var(--glass);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  text-decoration:none; color:inherit;
+  display:flex; align-items:center; gap:0;
+  height:100px;
+  transition:transform .25s, border-color .25s, box-shadow .25s;
+  margin-bottom:14px;
+}
+.portfolio-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--shine),transparent);
+}
+.portfolio-card::after {
+  content:''; position:absolute; top:-40%; left:-15%;
+  width:45%; height:150%;
+  background:linear-gradient(112deg,rgba(255,255,255,.055) 0%,transparent 55%);
+  pointer-events:none; transition:transform .4s;
+}
+.portfolio-card:hover { transform:translateY(-3px); border-color:rgba(255,255,255,.18); box-shadow:0 14px 38px rgba(0,0,0,.42) }
+.portfolio-card:hover::after { transform:translateX(26px) }
+.portfolio-thumb {
+  width:100px; height:100%;
+  flex-shrink:0; overflow:hidden; border-radius:19px 0 0 19px;
+}
+.portfolio-thumb img { width:100%; height:100%; object-fit:cover; opacity:.7; transition:opacity .3s }
+.portfolio-card:hover .portfolio-thumb img { opacity:.9 }
+.portfolio-info { flex:1; padding:0 18px }
+.portfolio-tag  { font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px }
+.portfolio-name { font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; font-weight:800; margin-bottom:3px }
+.portfolio-sub  { font-size:12px; color:var(--muted); }
+.portfolio-arrow {
+  width:36px; height:36px; border-radius:50%; flex-shrink:0; margin-right:16px;
+  display:grid; place-items:center;
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+  font-size:14px; transition:background .2s, border-color .2s, transform .2s;
+}
+.portfolio-card:hover .portfolio-arrow { background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.28); transform:scale(1.08) }
+
+/* ─────────────────────────────────────────
+   REDES SOCIAIS — grid 2x2 orgânico
+   cada card tem tamanho e peso diferentes
+   ───────────────────────────────────────── */
+.social-section { margin-bottom:14px }
+.social-label {
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:10.5px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--muted2);
+  margin-bottom:12px; display:flex; align-items:center; gap:9px;
+}
+.social-label::after { content:''; flex:1; height:1px; background:var(--border) }
+
+.socials-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px }
+
+/* Card social base */
+.sc {
+  position:relative; overflow:hidden;
+  border-radius:18px; border:1px solid var(--border);
+  background:var(--glass);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  text-decoration:none; color:inherit;
+  padding:18px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  min-height:100px;
+  transition:transform .24s, border-color .24s, box-shadow .24s;
+}
+.sc::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--shine),transparent) }
+.sc:hover { transform:translateY(-3px) scale(1.02); border-color:rgba(255,255,255,.2); box-shadow:0 12px 32px rgba(0,0,0,.4) }
+
+/* Instagram — maior, ocupa linha inteira */
+.sc-instagram {
+  grid-column:1 / -1;
+  flex-direction:row; align-items:center; gap:16px;
+  min-height:80px; padding:16px 20px;
+}
+.sc-instagram .sc-icon-wrap { width:46px; height:46px; border-radius:14px }
+.sc-instagram .sc-name { font-size:16px }
+.sc-instagram .sc-handle { font-size:13px }
+
+/* TikTok — card mais alto, quadrado */
+.sc-tiktok { min-height:130px }
+
+/* ícone grande */
+.sc-icon-wrap {
+  width:42px; height:42px; border-radius:12px;
+  display:grid; place-items:center;
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
+  font-size:20px; flex-shrink:0;
+}
+.sc-body      { flex:1 }
+.sc-name      { font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; display:block; margin-bottom:2px }
+.sc-handle    { font-size:12px; color:var(--muted); display:block; margin-bottom:0 }
+.sc-action    {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--muted); margin-top:10px;
+  transition:color .2s;
+}
+.sc:hover .sc-action { color:rgba(255,255,255,.75) }
+.sc-action::after { content:'↗'; font-size:10px }
+
+/* ─────────────────────────────────────────
+   FOOTER
+   ───────────────────────────────────────── */
+footer {
+  max-width:480px; margin:44px auto 0;
+  padding:0 16px 20px;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+}
+.ft-brand { font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted2) }
+.ft-copy  { font-size:11px; color:rgba(255,255,255,.15); text-align:center; line-height:1.5 }
+
+/* ─────────────────────────────────────────
+   ENTRANCE ANIMATIONS
+   ───────────────────────────────────────── */
+.fu { opacity:0; transform:translateY(18px); animation:fu .55s cubic-bezier(.22,1,.36,1) forwards }
+@keyframes fu { to{opacity:1;transform:translateY(0)} }
+.d1{animation-delay:.06s} .d2{animation-delay:.13s} .d3{animation-delay:.20s}
+.d4{animation-delay:.27s} .d5{animation-delay:.34s} .d6{animation-delay:.41s}
+.d7{animation-delay:.48s} .d8{animation-delay:.55s}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <div class="pulse"></div>
+    <span class="topbar-name" id="page-title">Meus Links</span>
+  </div>
+  <div class="topbar-right">
+    <a href="#" id="nav-ig" target="_blank">IG</a>
+    <a href="#" id="nav-tt" target="_blank">TT</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- ── PERFIL ── -->
+  <section class="profile fu">
+    <div class="avatar-col">
+      <div class="avatar-ring">
+        <img id="profile-avatar" src="https://ui-avatars.com/api/?name=??&background=252830&color=888&size=128" alt="Avatar"/>
+      </div>
+    </div>
+    <div class="profile-name-row">
+      <h1 class="p-name" id="profile-name">Seu Nome</h1>
+      <span class="p-role" id="profile-role">Designer</span>
+    </div>
+    <p class="p-bio" id="profile-bio">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Edite este texto no painel admin.</p>
+    <div class="cta-row">
+      <a href="#" class="cta" id="cta-btn">
+        Vamos conversar <span class="cta-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── CURSO DESTAQUE ── -->
+  <div class="course-section fu d2">
+    <a href="#" class="course-hero" id="card-course">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1558655146-d09347e92766?w=900&q=80')"></div>
+      <div class="ov"></div>
+      <div class="body">
+        <span class="course-badge"><span class="dot"></span>Curso Online</span>
+        <div class="course-bottom">
+          <h2 class="course-title" id="course-title">
+            Lorem ipsum <em>dolor sit amet</em> consectetur
+          </h2>
+          <span class="course-cta" id="course-cta">Ver curso ↗</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ── PORTFÓLIO ── -->
+  <a href="#" class="portfolio-card fu d3" id="card-portfolio">
+    <div class="portfolio-thumb">
+      <img src="https://images.unsplash.com/photo-1545235617-9465d2a55698?w=300&q=80" id="portfolio-img" alt=""/>
+    </div>
+    <div class="portfolio-info">
+      <p class="portfolio-tag" id="portfolio-tag">Portfólio</p>
+      <p class="portfolio-name" id="portfolio-name">Veja meus projetos</p>
+      <p class="portfolio-sub"  id="portfolio-sub">Trabalhos, cases e experimentos</p>
+    </div>
+    <div class="portfolio-arrow">↗</div>
+  </a>
+
+  <!-- ── REDES SOCIAIS ── -->
+  <div class="social-section fu d4">
+    <p class="social-label">Redes Sociais</p>
+
+    <div class="socials-grid" id="socials-grid">
+
+      <!-- Instagram — largo -->
+      <a href="#" class="sc sc-instagram" id="soc-0">
+        <div class="sc-icon-wrap">📸</div>
+        <div class="sc-body">
+          <span class="sc-name">Instagram</span>
+          <span class="sc-handle" id="soc-0-handle">@seuarroba</span>
+        </div>
+        <span class="sc-action">Seguir</span>
+      </a>
+
+      <!-- TikTok — card alto -->
+      <a href="#" class="sc sc-tiktok" id="soc-1">
+        <div class="sc-icon-wrap">🎵</div>
+        <div>
+          <span class="sc-name">TikTok</span>
+          <span class="sc-handle" id="soc-1-handle">@seuarroba</span>
+        </div>
+        <span class="sc-action">Seguir</span>
+      </a>
+
+      <!-- Extra slot -->
+      <a href="#" class="sc" id="soc-2">
+        <div class="sc-icon-wrap">✦</div>
+        <div>
+          <span class="sc-name" id="soc-2-name">Link Extra</span>
+          <span class="sc-handle" id="soc-2-handle">Descrição curta</span>
+        </div>
+        <span class="sc-action">Acessar</span>
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="fu d8">
+  <span class="ft-brand" id="ft-brand">✦ SEU LOGO</span>
+  <p class="ft-copy" id="ft-copy">© 2025 Seu Nome. Todos os direitos reservados.</p>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const CFG = {
+  apiKey:            "AIzaSyA2SSXcCMXY33zu4w7MMUtlc8jt94H-Z68",
+  authDomain:        "linkbio-271e7.firebaseapp.com",
+  projectId:         "linkbio-271e7",
+  storageBucket:     "linkbio-271e7.firebasestorage.app",
+  messagingSenderId: "919033124206",
+  appId:             "1:919033124206:web:7b66106d00dac57a81dd7f"
+};
+
+try {
+  const app  = initializeApp(CFG);
+  const db   = getFirestore(app);
+  const snap = await getDoc(doc(db, "linkbio", "config"));
+  if (snap.exists()) apply(snap.data());
+} catch(e) { console.info("Firebase não configurado — exibindo placeholders."); }
+
+function apply(d) {
+  const txt  = (id,v) => { const el=document.getElementById(id); if(el&&v) el.textContent=v };
+  const src  = (id,v) => { const el=document.getElementById(id); if(el&&v) el.src=v };
+  const href = (id,v) => { const el=document.getElementById(id); if(el&&v) el.href=v };
+  const html = (id,v) => { const el=document.getElementById(id); if(el&&v) el.innerHTML=v };
+
+  txt("page-title",     d.pageTitle);
+  txt("profile-name",   d.name);
+  txt("profile-role",   d.role);
+  txt("profile-bio",    d.bio);
+  txt("cta-btn",        d.ctaLabel);
+  href("cta-btn",       d.ctaUrl);
+  src("profile-avatar", d.avatar);
+  href("nav-ig",        d.navIg);
+  href("nav-tt",        d.navTt);
+
+  // Curso
+  html("course-title",  d.courseTitle);
+  txt("course-cta",     d.courseCta);
+  href("card-course",   d.courseUrl);
+  const bg = document.querySelector(".course-hero .bg");
+  if (bg && d.courseBg) bg.style.backgroundImage = `url('${d.courseBg}')`;
+
+  // Portfólio
+  href("card-portfolio",  d.portfolioUrl);
+  txt("portfolio-tag",    d.portfolioTag);
+  txt("portfolio-name",   d.portfolioName);
+  txt("portfolio-sub",    d.portfolioSub);
+  src("portfolio-img",    d.portfolioImg);
+
+  // Sociais
+  const socs = d.socials || [];
+  socs.forEach((s,i) => {
+    const card = document.getElementById(`soc-${i}`); if(!card) return;
+    href(`soc-${i}`, s.url);
+    const icon = card.querySelector(".sc-icon-wrap"); if(icon&&s.icon) icon.textContent=s.icon;
+    const name = card.querySelector(".sc-name");      if(name&&s.name) name.textContent=s.name;
+    const hdl  = document.getElementById(`soc-${i}-handle`); if(hdl&&s.handle) hdl.textContent=s.handle;
+  });
+
+  txt("ft-brand", d.footerBrand);
+  txt("ft-copy",  d.footerCopy);
+}
+</script>
+</body>
+</html>
