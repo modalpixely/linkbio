@@ -73,6 +73,20 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);background:var(--bg);min-h
 .img-prev.rect{border-radius:10px;width:90px;height:60px}
 .img-prev.wide{border-radius:10px;width:120px;height:68px;object-fit:cover}
 
+/* UPLOAD */
+.upload-wrap{display:flex;flex-direction:column;gap:6px;flex:1}
+.upload-btn{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:8px 14px;
+  background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.18);
+  border-radius:10px;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:600;color:var(--muted);
+  transition:background .2s,border-color .2s,color .2s;
+}
+.upload-btn:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.32);color:#fff}
+.upload-btn.loading{opacity:.55;pointer-events:none}
+.upload-input{display:none}
+
 /* CARD BLOCK */
 .cb{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
 .cb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;cursor:pointer;user-select:none}
@@ -166,10 +180,14 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);background:var(--bg);min-h
           <div class="img-row" style="margin-bottom:18px">
             <img class="img-prev" id="prev-avatar"
               src="https://ui-avatars.com/api/?name=??&background=252830&color=888&size=128" alt=""/>
-            <div class="field" style="flex:1">
-              <label>URL da Foto de Perfil</label>
-              <input type="url" id="f-avatar" placeholder="https://…"
-                oninput="document.getElementById('prev-avatar').src=this.value||'https://ui-avatars.com/api/?name=??&background=252830&color=888&size=128'"/>
+            <div class="upload-wrap">
+              <div class="field">
+                <label>URL da Foto de Perfil</label>
+                <input type="url" id="f-avatar" placeholder="https://…"
+                  oninput="document.getElementById('prev-avatar').src=this.value||'https://ui-avatars.com/api/?name=??&background=252830&color=888&size=128'"/>
+              </div>
+              <input type="file" accept="image/*" class="upload-input" id="up-avatar" onchange="uploadImg(this,'f-avatar','prev-avatar')"/>
+              <button class="upload-btn" onclick="document.getElementById('up-avatar').click()" type="button">📁 Fazer upload do PC</button>
             </div>
           </div>
           <div class="fg">
@@ -217,10 +235,14 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);background:var(--bg);min-h
             <div class="img-row">
               <img class="img-prev wide" id="prev-coursebg"
                 src="https://images.unsplash.com/photo-1558655146-d09347e92766?w=400&q=60" alt=""/>
-              <div class="field" style="flex:1">
-                <label>URL da Imagem de Fundo</label>
-                <input type="url" id="f-coursebg" placeholder="https://…"
-                  oninput="document.getElementById('prev-coursebg').src=this.value||'https://images.unsplash.com/photo-1558655146-d09347e92766?w=400&q=60'"/>
+              <div class="upload-wrap">
+                <div class="field">
+                  <label>URL da Imagem de Fundo</label>
+                  <input type="url" id="f-coursebg" placeholder="https://…"
+                    oninput="document.getElementById('prev-coursebg').src=this.value||'https://images.unsplash.com/photo-1558655146-d09347e92766?w=400&q=60'"/>
+                </div>
+                <input type="file" accept="image/*" class="upload-input" id="up-coursebg" onchange="uploadImg(this,'f-coursebg','prev-coursebg')"/>
+                <button class="upload-btn" onclick="document.getElementById('up-coursebg').click()" type="button">📁 Fazer upload do PC</button>
               </div>
             </div>
           </div>
@@ -244,10 +266,14 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);background:var(--bg);min-h
             <div class="img-row">
               <img class="img-prev rect" id="prev-pfimg"
                 src="https://images.unsplash.com/photo-1545235617-9465d2a55698?w=300&q=60" alt=""/>
-              <div class="field" style="flex:1">
-                <label>URL da Thumb (imagem lateral)</label>
-                <input type="url" id="f-pfimg" placeholder="https://…"
-                  oninput="document.getElementById('prev-pfimg').src=this.value||'https://images.unsplash.com/photo-1545235617-9465d2a55698?w=300&q=60'"/>
+              <div class="upload-wrap">
+                <div class="field">
+                  <label>URL da Thumb (imagem lateral)</label>
+                  <input type="url" id="f-pfimg" placeholder="https://…"
+                    oninput="document.getElementById('prev-pfimg').src=this.value||'https://images.unsplash.com/photo-1545235617-9465d2a55698?w=300&q=60'"/>
+                </div>
+                <input type="file" accept="image/*" class="upload-input" id="up-pfimg" onchange="uploadImg(this,'f-pfimg','prev-pfimg')"/>
+                <button class="upload-btn" onclick="document.getElementById('up-pfimg').click()" type="button">📁 Fazer upload do PC</button>
               </div>
             </div>
           </div>
@@ -333,6 +359,33 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);background:var(--bg);min-h
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── Cloudinary ──────────────────────────────
+const CLD_CLOUD  = "dewglb8dn";
+const CLD_PRESET = "portfolio";
+
+window.uploadImg = async (input, fieldId, prevId) => {
+  const file = input.files[0]; if (!file) return;
+  const btn = input.nextElementSibling;
+  btn.textContent = "⏳ Enviando…"; btn.classList.add("loading");
+  try {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", CLD_PRESET);
+    const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/image/upload`, { method:"POST", body:fd });
+    const data = await res.json();
+    if (data.secure_url) {
+      document.getElementById(fieldId).value = data.secure_url;
+      document.getElementById(prevId).src    = data.secure_url;
+      showToast("✅ Imagem enviada com sucesso!", "success");
+    } else { showToast("❌ Erro no upload.", "error"); }
+  } catch(e) { showToast("❌ Erro ao conectar com Cloudinary.", "error"); }
+  finally {
+    btn.textContent = "📁 Fazer upload do PC"; btn.classList.remove("loading");
+    input.value = "";
+  }
+};
+// ────────────────────────────────────────────
 
 // ⚠️ Cole suas credenciais Firebase aqui
 const CFG = {
