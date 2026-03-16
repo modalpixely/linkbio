@@ -6,6 +6,7 @@
 <title>Admin — Link da Bio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"/>
 <style>
 :root {
   --bg:     #0f1114; --bg2:#13161a; --bg3:#191c22;
@@ -126,6 +127,39 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);background:var(--bg);min-h
   .fg,.fg1,.fg3{grid-template-columns:1fr!important}
   .content{padding:16px}
 }
+
+/* ── CROPPER MODAL ── */
+.crop-overlay{
+  position:fixed;inset:0;z-index:999;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+}
+.crop-overlay.open{display:flex}
+.crop-box{
+  background:var(--bg2);border:1px solid var(--border);border-radius:22px;
+  padding:24px;width:100%;max-width:500px;
+  display:flex;flex-direction:column;gap:18px;
+  position:relative;overflow:hidden;
+}
+.crop-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--shine),transparent)}
+.crop-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.crop-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1;transition:color .2s}
+.crop-close:hover{color:#fff}
+.crop-canvas{width:100%;max-height:340px;overflow:hidden;border-radius:14px;background:#000}
+.crop-canvas img{display:block;max-width:100%}
+.crop-actions{display:flex;gap:10px}
+.crop-zoom{display:flex;align-items:center;gap:8px;flex:1}
+.crop-zoom input{flex:1;accent-color:#c8c8d0}
+.crop-zoom span{font-size:12px;color:var(--muted);width:16px;text-align:center}
+.crop-confirm{
+  padding:10px 22px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);
+  border-radius:10px;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#fff;
+  transition:background .2s,border-color .2s;white-space:nowrap;
+}
+.crop-confirm:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.38)}
+.crop-confirm.loading{opacity:.5;pointer-events:none}
 </style>
 </head>
 <body>
@@ -186,7 +220,7 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);background:var(--bg);min-h
                 <input type="url" id="f-avatar" placeholder="https://…"
                   oninput="document.getElementById('prev-avatar').src=this.value||'https://ui-avatars.com/api/?name=??&background=252830&color=888&size=128'"/>
               </div>
-              <input type="file" accept="image/*" class="upload-input" id="up-avatar" onchange="uploadImg(this,'f-avatar','prev-avatar')"/>
+              <input type="file" accept="image/*" class="upload-input" id="up-avatar" onchange="uploadImg(this,'f-avatar','prev-avatar',true)"/>
               <button class="upload-btn" onclick="document.getElementById('up-avatar').click()" type="button">📁 Fazer upload do PC</button>
             </div>
           </div>
@@ -364,26 +398,70 @@ import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/fireb
 const CLD_CLOUD  = "dewglb8dn";
 const CLD_PRESET = "portfolio";
 
-window.uploadImg = async (input, fieldId, prevId) => {
+// Cropper state
+let _cropField = null, _cropPrev = null, _cropCircular = false;
+
+window.uploadImg = (input, fieldId, prevId, circular = false) => {
   const file = input.files[0]; if (!file) return;
-  const btn = input.nextElementSibling;
+  _cropField    = fieldId;
+  _cropPrev     = prevId;
+  _cropCircular = circular;
+  const reader  = new FileReader();
+  reader.onload = e => openCropper(e.target.result, circular);
+  reader.readAsDataURL(file);
+  input.value = "";
+};
+
+function openCropper(src, circular) {
+  document.getElementById("crop-overlay").classList.add("open");
+  document.getElementById("crop-title-text").textContent = circular ? "Ajustar foto de perfil" : "Ajustar imagem";
+  document.getElementById("crop-zoom-range").value = 1;
+  const img = document.getElementById("crop-img");
+  img.src = src;
+  if (window._cropper) { window._cropper.destroy(); window._cropper = null; }
+  setTimeout(() => {
+    window._cropper = new Cropper(img, {
+      aspectRatio: circular ? 1 : (
+        _cropField === "f-coursebg" ? 16/9 :
+        _cropField === "f-pfimg"   ? 1    : 1
+      ),
+      viewMode: 1,
+      autoCropArea: 0.85,
+      background: false,
+      highlight: false,
+      cropBoxMovable: true,
+      cropBoxResizable: !circular,
+    });
+  }, 100);
+}
+
+window.closeCropper = () => {
+  document.getElementById("crop-overlay").classList.remove("open");
+  if (window._cropper) { window._cropper.destroy(); window._cropper = null; }
+};
+
+window.confirmCrop = async () => {
+  if (!window._cropper) return;
+  const btn = document.getElementById("crop-confirm-btn");
   btn.textContent = "⏳ Enviando…"; btn.classList.add("loading");
   try {
+    const canvas = window._cropper.getCroppedCanvas(
+      _cropCircular ? { width:400, height:400 } : { width:900, height:506 }
+    );
+    const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.92));
     const fd = new FormData();
-    fd.append("file", file);
+    fd.append("file", blob, "image.jpg");
     fd.append("upload_preset", CLD_PRESET);
     const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/image/upload`, { method:"POST", body:fd });
     const data = await res.json();
     if (data.secure_url) {
-      document.getElementById(fieldId).value = data.secure_url;
-      document.getElementById(prevId).src    = data.secure_url;
+      document.getElementById(_cropField).value = data.secure_url;
+      document.getElementById(_cropPrev).src    = data.secure_url;
       showToast("✅ Imagem enviada com sucesso!", "success");
+      closeCropper();
     } else { showToast("❌ Erro no upload.", "error"); }
-  } catch(e) { showToast("❌ Erro ao conectar com Cloudinary.", "error"); }
-  finally {
-    btn.textContent = "📁 Fazer upload do PC"; btn.classList.remove("loading");
-    input.value = "";
-  }
+  } catch(e) { showToast("❌ Erro ao conectar com Cloudinary.", "error"); console.error(e); }
+  finally { btn.textContent = "✓ Confirmar & Enviar"; btn.classList.remove("loading"); }
 };
 // ────────────────────────────────────────────
 
@@ -507,5 +585,31 @@ function toggleCb(id) {
   document.getElementById(id).classList.toggle("collapsed");
 }
 </script>
+
+<!-- CROPPER MODAL -->
+<div class="crop-overlay" id="crop-overlay">
+  <div class="crop-box">
+    <div class="crop-title">
+      <span id="crop-title-text">Ajustar imagem</span>
+      <button class="crop-close" onclick="closeCropper()">✕</button>
+    </div>
+    <div class="crop-canvas">
+      <img id="crop-img" src="" alt=""/>
+    </div>
+    <div class="crop-actions">
+      <div class="crop-zoom">
+        <span>−</span>
+        <input type="range" id="crop-zoom-range" min="0.1" max="3" step="0.01" value="1"
+          oninput="if(window._cropper) window._cropper.zoomTo(parseFloat(this.value))"/>
+        <span>+</span>
+      </div>
+      <button class="crop-confirm" id="crop-confirm-btn" onclick="confirmCrop()">
+        ✓ Confirmar & Enviar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 </body>
 </html>
